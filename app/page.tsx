@@ -1,41 +1,50 @@
-// app/page.tsx
-import { supabase } from './utils/supabase/client';
-import { revalidatePath } from 'next/cache';
+
+
+// export default function Home() {
+//   return (
+//     <>
+//       <header>
+//         <h1>Personal Budget Tracker</h1>
+//         <nav>
+//           <ul>
+//             <li><a href="/">Home</a></li>
+//             <li><a href="/expenses">Expenses</a></li>
+//             <li><a href="/income">Income</a></li>
+//             <li><a href="/summary">Summary</a></li>
+//           </ul>
+//         </nav>
+//       </header>
+
+//     </>
+//   );
+// }
+import { supabase } from "@/lib/supabase";
 
 export default async function Home() {
-  const { data: transactions } = await supabase.from('transactions').select('*');
 
-  // 1. La Server Action (La logique d'insertion)
-  async function addTransaction(formData: FormData) {
-    'use server' // Cette ligne est cruciale
-    
-    // On récupère les données du formulaire
-    const label = formData.get('label');
-    const amount = formData.get('amount');
-    
-    // On insère dans la base de données
-    await supabase.from('transactions').insert([
-      { label, amount, type: 'expense', category: 'Divers' }
-    ]);
-    
-    // On demande à Next.js de rafraîchir la liste affichée
-    revalidatePath('/');
-  }
+  const { data: products, error } = await supabase
+    .from("products")
+    .select("*")
+
+  console.log(products)
+
   return (
-    <main>
-      <h1>Mon Tracker de Budget</h1>
-      <form action={addTransaction}>
-        <input type="text" name="label" placeholder="Libellé (ex: Hébergement Webixo) " required />
-        <input type="number" name="amount" placeholder="Montant" required />
-        <button type="submit">Ajouter</button>
-      </form>
-      <ul>
-        {transactions?.map((t) => (
-          <li key={t.id}>
-            {t.label} : {t.amount} CFA ({t.type})
-          </li>
-        ))}
-      </ul>
+    <main style={{ padding: "40px" }}>
+      <h1>Liste des produits</h1>
+
+      {products?.map((product) => (
+        <div
+          key={product.id}
+          style={{
+            border: "1px solid #ccc",
+            padding: "20px",
+            marginBottom: "10px"
+          }}
+        >
+          <h2>{product.title}</h2>
+          <p>{product.price} FCFA</p>
+        </div>
+      ))}
     </main>
-  );
+  )
 }
